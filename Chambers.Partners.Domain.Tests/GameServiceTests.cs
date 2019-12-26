@@ -1,0 +1,98 @@
+﻿using Chambers.Partners.Domain.Factories;
+using Chambers.Partners.Domain.Providers;
+using Chambers.Partners.Domain.Services;
+using Chambers.Partners.Domain.TestFixtures;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Chambers.Partners.Domain.Tests
+{
+    [TestClass]
+    public class GameServiceTests 
+    {
+        private ICardGameProvider _provider;
+        private IGameService _service;
+        private IGameFactory _factory;
+        private List<Card> _deck;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _provider = Substitute.For<ICardGameProvider>();
+            _factory = Substitute.For<IGameFactory>();
+
+            _service = new GameService(_factory, _provider);
+        }
+
+        [TestMethod]
+        public async Task TestGetNextGameId()
+        {
+            var identity = 1;
+            _provider.GetNextGameIdentityAsync().Returns(identity);
+
+            Assert.AreEqual(identity, await _service.GetNextGameId());
+        }
+
+        [TestMethod]
+        public async Task TestStartBlackJack()
+        {
+            var game = BlackJackGameFixture.InMemory.Create();
+            _factory.CreateBlackJackGame(game.Identity).Returns(game);
+            
+            await _service.StartBlackJack(Arg.Any<int>());
+
+            await _provider.Received().InsertOrUpdateAsync(game);
+        }
+
+        [TestMethod]
+        public async Task TestHit()
+        {
+            var game = BlackJackGameFixture.InMemory.Create();
+            _provider.GetAsync(game.Identity).Returns(game);
+
+            await _service.Hit(game.Identity, game.Player.Identity);
+
+            await _provider.Received().InsertOrUpdateAsync(game);
+        }
+
+        [TestMethod]
+        public async Task TestHitWithWrongUser()
+        {
+            var game = BlackJackGameFixture.InMemory.Create();
+            _provider.GetAsync(game.Identity).Returns(game);
+
+            Assert.ThrowsException<System.UnauthorizedAccessException>(
+                () => _service.Hit(game.Identity, 999).Result
+            );
+            
+            await _provider.Received().InsertOrUpdateAsync(game);
+        }
+
+        [TestMethod]
+        public async Task TestStick()
+        {
+            var game = BlackJackGameFixture.InMemory.Create();
+            _provider.GetAsync(game.Identity).Returns(game);
+
+            await _service.Stick(game.Identity, game.Player.Identity);
+
+            await _provider.Received().InsertOrUpdateAsync(game);
+        }
+
+        [TestMethod]
+        public async Task TestStickWithWrongUser()
+        {
+            var game = BlackJackGameFixture.InMemory.Create();
+            _provider.GetAsync(game.Identity).Returns(game);
+
+            Assert.ThrowsException<System.UnauthorizedAccessException>(
+                async () => await _service.Stick(game.Identity, 999)
+            );
+
+            await _provider.Received().InsertOrUpdateAsync(game);
+        }
+        
+    }
+}
