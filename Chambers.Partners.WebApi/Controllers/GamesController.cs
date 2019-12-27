@@ -24,13 +24,12 @@ namespace Chambers.Partners.WebApi.Controllers
 
         [Route("api/[controller]/start")]
         [HttpPost]
-        public async Task<IEnumerable<Card>> Start([FromBody] int playerId)
+        public async Task<IEnumerable<Card>> StartAsync([FromBody] int playerId)
         {
             var playerHand = await _gameService.StartBlackJack(playerId);
             return playerHand.Select(x => _mapper.Map(x)).ToList();
         }
 
-        // PUT api/values/5
         [Route("api/[controller]/stick")]
         [HttpPut("{gameId}")]
         public async Task<string> StickAsync(int gameId, [FromBody] int playerId)
