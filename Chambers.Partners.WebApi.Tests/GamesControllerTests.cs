@@ -29,36 +29,63 @@ namespace Chambers.Partners.WebApi.Tests
         [TestMethod]
         public async Task TestStartAsync()
         {
+            // Arrange
             var cards = new List<Card>()
             {
                 new Card(CardSuit.Club, CardValue.Two),
                 new Card(CardSuit.Club, CardValue.Three),
             };
 
+            // Act
             _service.StartBlackJack(Arg.Any<int>()).Returns(cards);
 
             var hand = await _controller.StartAsync(1);
 
-            Assert.AreEqual(cards.First().Suit, hand.First().Suit);
-            Assert.AreEqual(cards.First().Value, hand.First().Value);
-            Assert.AreEqual(cards.Last().Suit, hand.Last().Suit);
-            Assert.AreEqual(cards.Last().Value, hand.Last().Value);
+            // Assert
+            Assert.AreEqual(cards.First().Suit.ToString(), hand.First().Suit);
+            Assert.AreEqual(((int)cards.First().Value).ToString(), hand.First().Value);
+            Assert.AreEqual(cards.Last().Suit.ToString(), hand.Last().Suit);
+            Assert.AreEqual(((int)cards.Last().Value).ToString(), hand.Last().Value);
         }
 
         [TestMethod]
         public async Task TestStickAsync()
         {
+            // Arrange
             var expectedWinner = "player";
+
             _service.Stick(Arg.Any<int>(), Arg.Any<int>()).Returns(expectedWinner);
 
-            var winner = await _controller.StickAsync(1,1);
+            // Act
+            var winner = await _controller.StickAsync(1, 1);
+
+            // Assert
             Assert.AreEqual(expectedWinner, winner);
         }
 
         [TestMethod]
         public async Task TestHitAsync()
         {
-            await _controller.HitAsync(1,1);
+            // Arrange
+            var gameId = 1;
+            var playerId = 1;
+            var cards = new List<Card>()
+            {
+                new Card(CardSuit.Club, CardValue.Two),
+                new Card(CardSuit.Club, CardValue.Three),
+            };
+
+            _service.Hit(gameId, playerId).Returns(cards);
+
+            // Act
+            var hand = await _controller.HitAsync(gameId, playerId);
+
+            // Assert
+            Assert.AreEqual(cards.First().Suit.ToString(), hand.First().Suit);
+            Assert.AreEqual(((int)cards.First().Value).ToString(), hand.First().Value);
+            Assert.AreEqual(cards.Last().Suit.ToString(), hand.Last().Suit);
+            Assert.AreEqual(((int)cards.Last().Value).ToString(), hand.Last().Value);
+
         }
     }
 }
