@@ -28,7 +28,7 @@ namespace Chambers.Partners.Domain.Services
 
         public async Task<IReadOnlyList<Card>> StartBlackJack(int playerId)
         {
-            var game = _factory.CreateBlackJackGame(playerId);
+            var game = await _factory.CreateBlackJackGame(playerId);
             game.DealCardToPlayer(2);
 
             await _provider.InsertOrUpdateAsync(game);
@@ -39,6 +39,8 @@ namespace Chambers.Partners.Domain.Services
         public async Task<IReadOnlyList<Card>> Hit(int gameId, int playerId)
         {
             var game = await _provider.GetAsync(gameId);
+            if (game == null)
+                throw new UnauthorizedAccessException("The game does not exist");
 
             if (game.Player.Identity != playerId)
                 throw new UnauthorizedAccessException("The player is not valid for this game");
@@ -51,6 +53,8 @@ namespace Chambers.Partners.Domain.Services
         public async Task<string> Stick(int gameId, int playerId)
         {
             var game = await _provider.GetAsync(gameId);
+            if (game == null)
+                throw new UnauthorizedAccessException("The game does not exist");
 
             if (game.Player.Identity != playerId)
                 throw new UnauthorizedAccessException("The player is not valid for this game");

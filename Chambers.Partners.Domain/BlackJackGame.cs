@@ -46,15 +46,6 @@ namespace Chambers.Partners.Domain
 
         public int DealerScore { get => _dealerHand.CardsScore(); }
 
-        private void DealCardToDealer()
-        {
-            var cardToDeal = _deck.First();
-
-            if (_dealerHand.CardsScore() < 21) { 
-                _dealerHand.Add(cardToDeal);
-                _deck.Remove(cardToDeal);
-            }
-        }
 
         public void DealCardToPlayer(int? noOfCards)
         {
@@ -70,13 +61,6 @@ namespace Chambers.Partners.Domain
             }
 
             _status = GameStatus.InProgress;
-        }
-
-        private void dealCardToPlayer()
-        {
-            var cardToDeal = _deck.First();
-            _playerHand.Add(cardToDeal);
-            _deck.Remove(cardToDeal);
         }
 
         public void Stick()
@@ -100,6 +84,21 @@ namespace Chambers.Partners.Domain
             }
             else
                 return _playerHand.CardsScore() > 21 ? _dealer.Name : _player.Name;
+        }
+
+
+        private void dealCardToPlayer()
+        {
+            var cardToDeal = _deck.First();
+            _playerHand.Add(cardToDeal);
+            _deck.Remove(cardToDeal);
+        }
+
+        private void DealCardToDealer()
+        {
+            var cardToDeal = _deck.First();
+            _dealerHand.Add(cardToDeal);
+            _deck.Remove(cardToDeal);
         }
 
     }
