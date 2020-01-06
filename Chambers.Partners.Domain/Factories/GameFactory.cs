@@ -9,20 +9,20 @@ namespace Chambers.Partners.Domain.Factories
 {
     public class GameFactory : IGameFactory
     {
-        private ICardService _cardService;
-        private IGameService _gameService;
-        private IDealerProvider _dealerProvider;
-        private IPlayerProvider _playerProvider;
+        private readonly ICardService _cardService;
+        private readonly ICardGameProvider _gameProvider;
+        private readonly IDealerProvider _dealerProvider;
+        private readonly IPlayerProvider _playerProvider;
 
         public GameFactory(
             ICardService cardService,
-            IGameService gameService,
+            ICardGameProvider gameProvider,
             IDealerProvider dealerProvider,
             IPlayerProvider playerProvider
         )
         {
             _cardService = cardService;
-            _gameService = gameService;
+            _gameProvider = gameProvider;
             _dealerProvider = dealerProvider;
             _playerProvider = playerProvider;
         }
@@ -37,7 +37,7 @@ namespace Chambers.Partners.Domain.Factories
             var deck = _cardService.GetDeck();
             deck.ShuffleCards();
 
-            var gameId = await _gameService.GetNextGameId();
+            var gameId = await _gameProvider.GetNextGameIdentityAsync();
 
             return new BlackJackGame(gameId, dealer, player, deck.ToList());
         }

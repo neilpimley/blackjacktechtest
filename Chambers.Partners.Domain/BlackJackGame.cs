@@ -82,8 +82,7 @@ namespace Chambers.Partners.Domain
             {
                 return _playerHand.CardsScore() > _dealerHand.CardsScore() ? _player.Name : _dealer.Name;
             }
-            else
-                return _playerHand.CardsScore() > 21 ? _dealer.Name : _player.Name;
+            return _playerHand.CardsScore() > 21 ? _dealer.Name : string.Empty;
         }
 
 

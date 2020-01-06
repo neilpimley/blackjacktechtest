@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Chambers.Partners.Domain.Services;
@@ -8,41 +9,61 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Chambers.Partners.WebApi.Controllers
 {
-
-    [Route("api/[controller]")]
     [ApiController]
     public class GamesController : ControllerBase
     {
         private IGameService _gameService;
-        private IPlayerHandMapper _mapper;
+        private ICardGameMapper _mapper;
 
-        public GamesController(IGameService gameService, IPlayerHandMapper mapper)
+        public GamesController(IGameService gameService, ICardGameMapper mapper)
         {
             _gameService = gameService;
             _mapper = mapper;
         }
 
-        [Route("api/[controller]/start")]
         [HttpPost]
-        public async Task<IEnumerable<Card>> StartAsync([FromBody] int playerId)
+        [Route("api/Games/Start")]
+        public async Task<IActionResult> StartAsync([FromBody] PlayRequest request)
         {
-            var playerHand = await _gameService.StartBlackJack(playerId);
-            return playerHand.Select(x => _mapper.Map(x)).ToList();
+            try
+            {
+                var game = await _gameService.StartBlackJack(request.PlayerId);
+                return Ok(_mapper.Map(game));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [Route("api/[controller]/stick")]
-        [HttpPut("{gameId}")]
-        public async Task<string> StickAsync(int gameId, [FromBody] int playerId)
+        [Route("api/Games/Stick/{gameId}")]
+        [HttpPut]
+        public async Task<IActionResult> StickAsync(int gameId, [FromBody] PlayRequest request)
         {
-            return await _gameService.Stick(gameId, playerId);
+            try
+            {
+                var game = await _gameService.Stick(gameId, request.PlayerId);
+                return Ok(_mapper.Map(game));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [Route("api/[controller]/hit")]
-        [HttpPut("{gameId}")]
-        public async Task<IEnumerable<Card>> HitAsync(int gameId, [FromBody] int playerId)
+        [Route("api/Games/Hit/{gameId}")]
+        [HttpPut]
+        public async Task<IActionResult> HitAsync(int gameId, [FromBody] PlayRequest request)
         {
-            var playerHand = await _gameService.Hit(gameId, playerId);
-            return playerHand.Select(x => _mapper.Map(x)).ToList();
+            try
+            {
+                var game = await _gameService.Hit(gameId, request.PlayerId);
+                return Ok(_mapper.Map(game));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         
     }

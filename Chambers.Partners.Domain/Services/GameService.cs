@@ -26,17 +26,17 @@ namespace Chambers.Partners.Domain.Services
             return await _provider.GetNextGameIdentityAsync();
         }
 
-        public async Task<IReadOnlyList<Card>> StartBlackJack(int playerId)
+        public async Task<BlackJackGame> StartBlackJack(int playerId)
         {
             var game = await _factory.CreateBlackJackGame(playerId);
             game.DealCardToPlayer(2);
 
             await _provider.InsertOrUpdateAsync(game);
 
-            return game.PlayerHand;
+            return game;
         }
 
-        public async Task<IReadOnlyList<Card>> Hit(int gameId, int playerId)
+        public async Task<BlackJackGame> Hit(int gameId, int playerId)
         {
             var game = await _provider.GetAsync(gameId);
             if (game == null)
@@ -47,10 +47,10 @@ namespace Chambers.Partners.Domain.Services
 
             game.DealCardToPlayer(1);
             await _provider.InsertOrUpdateAsync(game);
-            return game.PlayerHand;
+            return game;
         }
 
-        public async Task<string> Stick(int gameId, int playerId)
+        public async Task<BlackJackGame> Stick(int gameId, int playerId)
         {
             var game = await _provider.GetAsync(gameId);
             if (game == null)
@@ -61,7 +61,7 @@ namespace Chambers.Partners.Domain.Services
 
             game.Stick();
             await _provider.InsertOrUpdateAsync(game);
-            return game.Winner();
+            return game;
         }
     }
 }

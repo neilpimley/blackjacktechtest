@@ -1,4 +1,4 @@
-using Chambers.Partners.Domain;
+using System;
 using Chambers.Partners.Domain.Enums;
 using Chambers.Partners.Domain.Services;
 using Chambers.Partners.WebApi.Controllers;
@@ -8,6 +8,11 @@ using NSubstitute;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Chambers.Partners.Domain.ExtensionMethods;
+using Chambers.Partners.WebApi.Models;
+using Card = Chambers.Partners.Domain.Card;
+using Chambers.Partners.Domain.TestFixtures;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Chambers.Partners.WebApi.Tests
 {
@@ -16,13 +21,13 @@ namespace Chambers.Partners.WebApi.Tests
     {
         private GamesController _controller;
         private IGameService _service;
-        private IPlayerHandMapper _mapper;
+        private ICardGameMapper _mapper;
 
         [TestInitialize]
         public void Setup()
         {
             _service = Substitute.For<IGameService>();
-            _mapper = new PlayerHandMapper();
+            _mapper = new CardGameMapper();
             _controller = new GamesController(_service, _mapper);
         }
 
@@ -30,37 +35,68 @@ namespace Chambers.Partners.WebApi.Tests
         public async Task TestStartAsync()
         {
             // Arrange
-            var cards = new List<Card>()
-            {
-                new Card(CardSuit.Club, CardValue.Two),
-                new Card(CardSuit.Club, CardValue.Three),
-            };
+            var card1 = new Card(CardSuit.Club, CardValue.Two);
+            var card2 = new Card(CardSuit.Club, CardValue.Two);
+            var cards = new List<Card> {card1, card2 };
+            var domainGame = BlackJackGameFixture.InMemory.WithDeck(cards).Create();
+            domainGame.DealCardToPlayer(2);
+
+            var expectedCards = new List<Card> { card1, card2 };
 
             // Act
-            _service.StartBlackJack(Arg.Any<int>()).Returns(cards);
+            _service.StartBlackJack(Arg.Any<int>()).Returns(Task.FromResult(domainGame));
 
-            var hand = await _controller.StartAsync(1);
+            var response = await _controller.StartAsync(new PlayRequest { PlayerId = 1 });
 
             // Assert
-            Assert.AreEqual(cards.First().Suit.ToString(), hand.First().Suit);
-            Assert.AreEqual(((int)cards.First().Value).ToString(), hand.First().Value);
-            Assert.AreEqual(cards.Last().Suit.ToString(), hand.Last().Suit);
-            Assert.AreEqual(((int)cards.Last().Value).ToString(), hand.Last().Value);
+            Assert.IsInstanceOfType(response, typeof(OkObjectResult));
+            var result = response as OkObjectResult;
+            Assert.IsNotNull(result);
+            var game = result.Value as CardGame;
+            Assert.IsNotNull(game);
+
+            Assert.AreEqual(expectedCards.First().Suit.ToString(), game.Cards.First().Suit);
+            Assert.AreEqual(expectedCards.First().Value.GetDescription(), game.Cards.First().Value);
+            Assert.AreEqual(expectedCards.Last().Suit.ToString(), game.Cards.Last().Suit);
+            Assert.AreEqual(expectedCards.Last().Value.GetDescription(), game.Cards.Last().Value);
         }
 
         [TestMethod]
         public async Task TestStickAsync()
         {
             // Arrange
-            var expectedWinner = "player";
+            var playerCard1 = new Card(CardSuit.Club, CardValue.Ace);
+            var playerCard2 = new Card(CardSuit.Club, CardValue.King);
+            var dealerard1 = new Card(CardSuit.Heart, CardValue.King);
+            var dealerCard2 = new Card(CardSuit.Spade, CardValue.King);
 
-            _service.Stick(Arg.Any<int>(), Arg.Any<int>()).Returns(expectedWinner);
+            var expectedCards = new List<Card> { playerCard1, playerCard2, dealerard1, dealerCard2 };
+            var expectedWinner = "Mr Winner 1";
+
+            var cards = new List<Card> { playerCard1, playerCard2, dealerard1, dealerCard2 };
+            var domainGame = BlackJackGameFixture.InMemory
+                .WithPlayer(PlayerFixture.InMemory.WithName(expectedWinner).Create())
+                .WithDeck(cards).Create();
+            domainGame.DealCardToPlayer(2);
+            domainGame.Stick();
+
+            _service.Stick(Arg.Any<int>(), Arg.Any<int>()).Returns(domainGame);
 
             // Act
-            var winner = await _controller.StickAsync(1, 1);
+            var response = await _controller.StickAsync(1, new PlayRequest { PlayerId = 1 });
 
             // Assert
-            Assert.AreEqual(expectedWinner, winner);
+            Assert.IsInstanceOfType(response, typeof(OkObjectResult));
+            var result = response as OkObjectResult;
+            Assert.IsNotNull(result);
+            var game = result.Value as CardGame;
+            Assert.IsNotNull(game);
+
+            Assert.AreEqual(expectedCards.First().Suit.ToString(), game.Cards.First().Suit);
+            Assert.AreEqual(expectedCards.First().Value.GetDescription(), game.Cards.First().Value);
+            Assert.AreEqual(expectedCards.ElementAt(1).Suit.ToString(), game.Cards.Last().Suit);
+            Assert.AreEqual(expectedCards.ElementAt(1).Value.GetDescription(), game.Cards.Last().Value);
+            Assert.AreEqual(expectedWinner, game.Winner);
         }
 
         [TestMethod]
@@ -69,22 +105,33 @@ namespace Chambers.Partners.WebApi.Tests
             // Arrange
             var gameId = 1;
             var playerId = 1;
-            var cards = new List<Card>()
-            {
-                new Card(CardSuit.Club, CardValue.Two),
-                new Card(CardSuit.Club, CardValue.Three),
-            };
+            var card1 = new Card(CardSuit.Club, CardValue.Two);
+            var card2 = new Card(CardSuit.Club, CardValue.Two);
+            var cards = new List<Card> { card1, card2 };
+            var domainGame = BlackJackGameFixture.InMemory
+                .WithIdentity(gameId)
+                .WithPlayer(PlayerFixture.InMemory.WithIdentity(1).Create())
+                .WithDeck(cards).Create();
+            domainGame.DealCardToPlayer(2);
 
-            _service.Hit(gameId, playerId).Returns(cards);
+            var expectedCards = new List<Card> { card1, card2 };
+
+            _service.Hit(gameId, playerId).Returns(domainGame);
 
             // Act
-            var hand = await _controller.HitAsync(gameId, playerId);
+            var response = await _controller.HitAsync(gameId, new PlayRequest { PlayerId = 1 });
 
             // Assert
-            Assert.AreEqual(cards.First().Suit.ToString(), hand.First().Suit);
-            Assert.AreEqual(((int)cards.First().Value).ToString(), hand.First().Value);
-            Assert.AreEqual(cards.Last().Suit.ToString(), hand.Last().Suit);
-            Assert.AreEqual(((int)cards.Last().Value).ToString(), hand.Last().Value);
+            Assert.IsInstanceOfType(response, typeof(OkObjectResult));
+            var result = response as OkObjectResult;
+            Assert.IsNotNull(result);
+            var game = result.Value as CardGame;
+            Assert.IsNotNull(game);
+
+            Assert.AreEqual(expectedCards.First().Suit.ToString(), game.Cards.First().Suit);
+            Assert.AreEqual(expectedCards.First().Value.GetDescription(), game.Cards.First().Value);
+            Assert.AreEqual(expectedCards.Last().Suit.ToString(), game.Cards.Last().Suit);
+            Assert.AreEqual(expectedCards.Last().Value.GetDescription(), game.Cards.Last().Value);
 
         }
     }

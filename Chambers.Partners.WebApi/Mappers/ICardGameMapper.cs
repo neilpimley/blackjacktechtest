@@ -2,9 +2,9 @@
 
 namespace Chambers.Partners.WebApi.Mappers
 {
-    public interface IPlayerHandMapper
+    public interface ICardGameMapper
     {
         Card Map(Domain.Card card);
-        PlayerHand Map(Domain.BlackJackGame game);
+        CardGame Map(Domain.BlackJackGame game);
     }
 }

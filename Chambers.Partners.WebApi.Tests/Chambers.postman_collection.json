@@ -1,0 +1,107 @@
+{
+	"info": {
+		"_postman_id": "98b2d9e1-6d3e-4eb8-b0d3-0f83fac37947",
+		"name": "Chambers",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Start a new game",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \n\t\"playerid\":1 \n}"
+				},
+				"url": {
+					"raw": "http://localhost:63191/api/games/start",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "63191",
+					"path": [
+						"api",
+						"games",
+						"start"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Stick",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \n\t\"playerid\":1 \n}"
+				},
+				"url": {
+					"raw": "http://localhost:63191/api/games/stick/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "63191",
+					"path": [
+						"api",
+						"games",
+						"stick",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Hit",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"playerid\" :1\n}"
+				},
+				"url": {
+					"raw": "http://localhost:63191/api/games/hit/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "63191",
+					"path": [
+						"api",
+						"games",
+						"hit",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
