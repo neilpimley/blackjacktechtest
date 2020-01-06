@@ -7,6 +7,7 @@
 - In a real implementation a NoSql database would be used for the games and a Relational Database used for the Players
 - Players would be in their own bounded context and have their own microservices and model deployed seperately from the game
 - Tests for controllers, services and model. In a real implementation integration and BDD tests using Specflow would be added
+- A real implementation would also have logging in the services and providers to debug any issues
 
 ## Instructions to test
 
