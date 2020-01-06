@@ -41,3 +41,22 @@ PUT : http://localhost:63191/api/games/stick/1 (where GameId is 1)
 }
 ```
 This returns a game object with the players hand and a winner.
+
+### Example response
+```
+{
+    "gameId": 1,
+    "playerName": "Mr Player",
+    "cards": [
+        {
+            "suit": "Club",
+            "value": "King"
+        },
+        {
+            "suit": "Heart",
+            "value": "Ace"
+        }
+    ],
+    "winner": ""
+}
+```
