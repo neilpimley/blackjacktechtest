@@ -16,7 +16,7 @@
 There are 2 players in the system with Id of 1 and 2
 
 Start a Game
-http://localhost:63191/api/games/start
+POST : http://localhost:63191/api/games/start
 ```
 { 
 	"playerid":1 
@@ -25,7 +25,7 @@ http://localhost:63191/api/games/start
 This will return a GameId to use for Stick and Hit and also the players hand
 
 Hit
-http://localhost:63191/api/games/hit/1 (where GameId is 1)
+PUT : http://localhost:63191/api/games/hit/1 (where GameId is 1)
 ```
 { 
 	"playerid":1 
@@ -34,7 +34,7 @@ http://localhost:63191/api/games/hit/1 (where GameId is 1)
 This returns a game object with the players new hand and a winner if the player's score exceeds 21.
 
 Stick
-http://localhost:63191/api/games/stick/1 (where GameId is 1)
+PUT : http://localhost:63191/api/games/stick/1 (where GameId is 1)
 ```
 { 
 	"playerid":1 
