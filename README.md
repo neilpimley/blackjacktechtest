@@ -54,7 +54,7 @@ This returns a game object with the players hand and a winner.
         },
         {
             "suit": "Heart",
-            "value": "Ace"
+            "value": "Two"
         }
     ],
     "winner": ""
