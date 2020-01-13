@@ -295,6 +295,29 @@ namespace Chambers.Partners.Domain.Tests
 
         }
 
+        [TestMethod]
+        public void GivenIHaveABlackJackCardGame_IfThePlayerHasAHandOfEighteen_AndTheDealerHasAHandOfEighteen_AndThePLayerStick_ThenTheTheGameIsADraw()
+        {
+            var deck = new List<Card>
+                {
+                    new Card(CardSuit.Heart, CardValue.Ten),
+                    new Card(CardSuit.Heart, CardValue.Eight),
+                    new Card(CardSuit.Spade, CardValue.Ten),
+                    new Card(CardSuit.Spade, CardValue.Eight),
+
+                };
+            var game = BlackJackGameFixture.InMemory.WithDeck(deck).Create();
+
+            game.DealCardToPlayer(2);
+            game.Stick();
+
+            Assert.AreEqual(2, game.PlayerHand.Count);
+            Assert.AreEqual(2, game.DealerHand.Count);
+            Assert.AreEqual(18, game.PlayerScore);
+            Assert.AreEqual(18, game.DealerScore);
+            Assert.AreEqual("Draw", game.Winner());
+        }
+
     }
 
 }

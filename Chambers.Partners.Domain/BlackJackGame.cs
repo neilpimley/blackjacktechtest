@@ -80,7 +80,9 @@ namespace Chambers.Partners.Domain
         {
             if (_status == GameStatus.Complete)
             {
-                return _playerHand.CardsScore() > _dealerHand.CardsScore() ? _player.Name : _dealer.Name;
+                return _playerHand.CardsScore() > _dealerHand.CardsScore() ? _player.Name
+                    : _playerHand.CardsScore() == _dealerHand.CardsScore() ? "Draw" :
+                    _dealer.Name;
             }
             return _playerHand.CardsScore() > 21 ? _dealer.Name : string.Empty;
         }
